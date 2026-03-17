@@ -35,7 +35,7 @@ const About = () => {
           <ul className="mt-10 space-y-8">
             <li>
               <span className="text-[#e5e7eb] font-bold block mb-1">
-                • Modular React Architecture Showcase:
+                • Modern Booking App:
               </span>
               Demonstrates routing, reusable components, and scalable folder
               structure.
