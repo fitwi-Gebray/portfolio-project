@@ -3,7 +3,6 @@
 // ===============================
 const dns = require("node:dns");
 dns.setServers(["8.8.8.8", "8.8.4.4"]);
-module.exports = app;
 
 // ===============================
 // Imports
@@ -212,14 +211,25 @@ app.post("/api/reservations", verifyToken, async (req, res) => {
 // ===============================
 // DATABASE + SERVER
 // ===============================
+// ===============================
+// DATABASE + SERVER (VERCEL OPTIMIZED)
+// ===============================
 const MONGO_URI = process.env.MONGODB_URI;
 
+// We connect outside the listen block for better serverless performance
 mongoose
   .connect(MONGO_URI)
   .then(() => {
     console.log("✅ Connected to MongoDB Atlas");
-    app.listen(5000, () => console.log("🚀 Server running on port 5000"));
   })
   .catch((err) => {
     console.error("❌ Database connection error:", err.message);
   });
+
+// ONLY run app.listen if we are NOT on Vercel (Local Development)
+if (process.env.NODE_ENV !== "production") {
+  app.listen(5000, () => console.log("🚀 Local server running on port 5000"));
+}
+
+// Essential for Vercel to turn Express into a Serverless Function
+module.exports = app;
