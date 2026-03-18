@@ -27,6 +27,8 @@ export default function Login() {
 
       if (data.success) {
         // Optional (only if you use it in Navbar)
+        localStorage.setItem("token", data.token);
+
         localStorage.setItem("user", JSON.stringify(data.user));
 
         Swal.fire({
