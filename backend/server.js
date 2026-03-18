@@ -22,17 +22,18 @@ const Reservation = require("./models/Reservation");
 const app = express();
 
 // ===============================
-// CORS CONFIG (PRODUCTION SAFE)
+// CORS CONFIG (PRODUCTION SAFE + PNA FIX)
 // ===============================
-
 const allowedOrigins = [
   "http://localhost:5173",
+  "https://fitwi-booking.vercel.app",
   "https://fitwi-booking-5tx5r6y20-fitwis-projects.vercel.app",
 ];
 
 app.use(
   cors({
     origin: function (origin, callback) {
+      // Allow requests with no origin (like mobile apps or curl)
       if (!origin) return callback(null, true);
 
       if (allowedOrigins.includes(origin)) {
@@ -44,6 +45,17 @@ app.use(
     credentials: true,
   }),
 );
+
+/**
+ * FIX: Private Network Access (PNA)
+ * This allows a public site (Vercel) to talk to a local server (localhost).
+ */
+app.use((req, res, next) => {
+  if (req.method === "OPTIONS") {
+    res.setHeader("Access-Control-Allow-Private-Network", "true");
+  }
+  next();
+});
 
 // ===============================
 // Middleware
