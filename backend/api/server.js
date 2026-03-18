@@ -16,8 +16,8 @@ const cookieParser = require("cookie-parser");
 require("dotenv").config();
 
 // Models
-const User = require("./models/User");
-const Reservation = require("./models/Reservation");
+const User = require("../models/User");
+const Reservation = require("../models/Reservation");
 
 const app = express();
 
