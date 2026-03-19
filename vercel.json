@@ -1,15 +1,17 @@
 {
   "version": 2,
-  "builds": [
+  "rewrites": [
     {
-      "src": "api/server.js",
-      "use": "@vercel/node"
-    }
-  ],
-  "routes": [
+      "source": "/api/(.*)",
+      "destination": "/api/server.js"
+    },
     {
-      "src": "/api/(.*)",
-      "dest": "api/server.js"
+      "source": "/(.*)",
+      "destination": "/booking-app/dist/$1"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/booking-app/dist/index.html"
     }
   ]
 }
