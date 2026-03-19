@@ -6,7 +6,7 @@
   ],
   "routes": [
     { "src": "/api/(.*)", "dest": "api/server.js" },
-    { "handle": "filesystem" },
+    { "src": "/assets/(.*)", "dest": "/booking-app/dist/assets/$1" },
     { "src": "/(.*)", "dest": "/booking-app/dist/index.html" }
   ]
 }
