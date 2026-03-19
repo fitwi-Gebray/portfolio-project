@@ -16,7 +16,7 @@ export default function Login() {
     e.preventDefault();
 
     try {
-      const res = await fetch("https://YOUR-BACKEND-URL.com/api/auth/login", {
+      const res = await fetch("/api/auth/login", {
         method: "POST",
         credentials: "include", // 🔥 REQUIRED
         headers: {
