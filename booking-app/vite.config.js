@@ -4,5 +4,5 @@ import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
-  base: "./", // <-- ensures all asset URLs are relative
+  base: "/", // Change this from "./" to "/"
 });
