@@ -41,3 +41,10 @@ textarea {
 input::placeholder {
   color: #94a3b8; /* slate-400 */
 }
+/* Add this to index.css to force borders on Vercel */
+input {
+  border: 1px solid #334155 !important; /* slate-700 */
+  background-color: #020617 !important; /* slate-950 */
+  display: block !important;
+  visibility: visible !important;
+}
