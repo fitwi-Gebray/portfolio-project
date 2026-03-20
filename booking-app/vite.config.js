@@ -15,4 +15,7 @@ export default defineConfig({
       },
     },
   },
+  build: {
+    outDir: "dist", // Ensures Vite builds into the folder Vercel expects
+  },
 });
