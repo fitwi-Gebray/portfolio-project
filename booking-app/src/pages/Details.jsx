@@ -14,11 +14,12 @@ export default function Details() {
   const item = LISTINGS.find((l) => l.id === parseInt(id));
   const today = new Date().toISOString().split("T")[0];
 
-  // ✅ Validation Function (Improved)
+  const API_BASE = import.meta.env.VITE_API_BASE; // ✅ use env variable
+
+  // Validation
   const validateInputs = () => {
     const name = guestName.trim();
     const email = guestEmail.trim();
-
     const nameRegex = /^[A-Za-z\s]+$/;
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -30,25 +31,14 @@ export default function Details() {
       });
       return false;
     }
-
-    if (!nameRegex.test(name)) {
+    if (!nameRegex.test(name) || name.length < 3) {
       Swal.fire({
         title: "Invalid Name",
-        text: "Name can only contain letters and spaces.",
+        text: "Name must be at least 3 letters and contain only letters.",
         icon: "warning",
       });
       return false;
     }
-
-    if (name.length < 3) {
-      Swal.fire({
-        title: "Name Too Short",
-        text: "Name must be at least 3 characters.",
-        icon: "warning",
-      });
-      return false;
-    }
-
     if (!emailRegex.test(email)) {
       Swal.fire({
         title: "Invalid Email",
@@ -57,7 +47,6 @@ export default function Details() {
       });
       return false;
     }
-
     return true;
   };
 
@@ -65,22 +54,19 @@ export default function Details() {
     if (!validateInputs()) return;
 
     try {
-      const response = await fetch(
-        "https://YOUR-BACKEND-URL.com/api/reservations", // 🔥 CHANGE THIS
-        {
-          method: "POST",
-          credentials: "include", // 🔥 REQUIRED
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            listingId: item.id,
-            listingName: item.name,
-            checkIn: selectedDate,
-            totalPrice: item.price,
-          }),
-        },
-      );
+      const response = await fetch(`${API_BASE}/api/reservations`, {
+        method: "POST",
+        credentials: "include", // ✅ for cookies
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          listingId: item.id,
+          listingName: item.name,
+          checkIn: selectedDate,
+          totalPrice: item.price,
+          guestName,
+          guestEmail,
+        }),
+      });
 
       if (response.status === 401) {
         return Swal.fire({
@@ -105,7 +91,6 @@ export default function Details() {
         setGuestName("");
         setGuestEmail("");
         setSelectedDate("");
-
         Swal.fire({
           title: "Success!",
           text: "Reservation confirmed.",
@@ -123,9 +108,10 @@ export default function Details() {
         });
       }
     } catch (error) {
+      console.error("Reservation fetch error:", error);
       Swal.fire({
         title: "Error",
-        text: "Connection failed.",
+        text: "Could not connect to the backend.",
         icon: "error",
       });
     }
@@ -144,11 +130,9 @@ export default function Details() {
             className="w-full h-[500px] object-cover rounded-[3rem] border border-slate-800 shadow-2xl"
             alt={item.name}
           />
-
           <h1 className="text-6xl font-black mt-10 tracking-tighter uppercase">
             {item.name}
           </h1>
-
           <p className="text-slate-400 mt-6 text-xl leading-relaxed italic">
             {item.description}
           </p>
@@ -203,7 +187,6 @@ export default function Details() {
               />
             </div>
 
-            {/* BUTTON */}
             <button
               onClick={handleReserve}
               className="w-full bg-white text-black py-5 rounded-2xl font-black uppercase tracking-widest hover:bg-slate-200 transition-all mt-4"
