@@ -4,8 +4,8 @@ import Home from "./pages/Home";
 import Projects from "./pages/Projects";
 import Contact from "./pages/Contact";
 import Details from "./pages/Details";
-import Register from "./components/Register";
-import Login from "../../api/Login";
+import Register from "./pages/Register";
+import Login from "./pages/Login";
 import ProtectedRoute from "./components/ProtectRoute";
 import Dashboard from "./pages/Dashboard";
 
