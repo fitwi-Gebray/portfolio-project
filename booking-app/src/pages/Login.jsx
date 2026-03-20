@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import Swal from "sweetalert2";
+import { handleLogin } from "../api/auth"; // Import API helper
 
 export default function Login() {
   const [formData, setFormData] = useState({
@@ -16,23 +17,10 @@ export default function Login() {
     e.preventDefault();
 
     try {
-      const res = await fetch(
-        "https://fitwis-projects-backend.vercel.app/api/auth/login",
-        {
-          method: "POST",
-          credentials: "include", // 🔥 REQUIRED for cookies
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(formData),
-        },
-      );
-
-      const data = await res.json();
-      console.log("Submitting login form with data:", formData);
+      const data = await handleLogin(formData); // ✅ Use API helper
 
       if (data.success) {
-        // Save token to localStorage for Navbar/ProtectedRoute logic
+        // Save token to localStorage if present
         if (data.token) localStorage.setItem("token", data.token);
 
         Swal.fire({
@@ -53,7 +41,7 @@ export default function Login() {
     } catch (error) {
       Swal.fire({
         title: "Server Error",
-        text: "Backend not reachable. Check if your server is running on port 5000.",
+        text: "Backend not reachable. Make sure your backend is deployed and VITE_API_BASE is correct.",
         icon: "error",
       });
     }
