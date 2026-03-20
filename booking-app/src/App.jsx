@@ -7,23 +7,36 @@ import Details from "./pages/Details";
 import Register from "./components/Register";
 import Login from "./components/Login";
 import ProtectedRoute from "./components/ProtectRoute";
+import Dashboard from "./pages/Dashboard";
 
 export default function App() {
   return (
     <Routes>
+      {/* Main Layout Wrapper */}
       <Route path="/" element={<Layout />}>
+        {/* Public Routes */}
         <Route index element={<Home />} />
         <Route path="projects" element={<Projects />} />
         <Route path="contact" element={<Contact />} />
         <Route path="register" element={<Register />} />
         <Route path="login" element={<Login />} />
 
-        {/* FIXED PATH */}
+        {/* Protected Route: Booking Details */}
         <Route
           path="stay/:id"
           element={
             <ProtectedRoute>
               <Details />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Protected Route: User Dashboard */}
+        <Route
+          path="dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
             </ProtectedRoute>
           }
         />
