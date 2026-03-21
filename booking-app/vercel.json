@@ -4,24 +4,19 @@
     {
       "src": "booking-app/package.json",
       "use": "@vercel/static-build",
-      "config": { "distDir": "dist" }
+      "config": {
+        "installCommand": "npm install",
+        "buildCommand": "cd booking-app && npm run build"
+      }
     },
     {
-      "src": "portfolio-project/server.js",
+      "src": "api/server.js",
       "use": "@vercel/node"
     }
   ],
   "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "portfolio-project/server.js"
-    },
-    {
-      "handle": "filesystem"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "booking-app/dist/index.html"
-    }
+    { "src": "/api/(.*)", "dest": "api/server.js" },
+    { "handle": "filesystem" },
+    { "src": "/(.*)", "dest": "booking-app/dist/index.html" }
   ]
 }
