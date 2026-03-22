@@ -3,7 +3,8 @@
   "builds": [
     {
       "src": "booking-app/package.json",
-      "use": "@vercel/static-build"
+      "use": "@vercel/static-build",
+      "config": { "distDir": "dist" }
     },
     {
       "src": "api/server.js",
@@ -11,9 +12,11 @@
     }
   ],
   "routes": [
-    { "src": "/api/(.*)", "dest": "api/server.js" },
-    { "src": "/assets/(.*)", "dest": "booking-app/dist/assets/$1" },
+    { "src": "/api/(.*)", "dest": "/api/server.js" },
+    { "src": "/assets/(.*)", "dest": "/booking-app/assets/$1" },
+    { "src": "/favicon.svg", "dest": "/booking-app/favicon.svg" },
+    { "src": "/icons.svg", "dest": "/booking-app/icons.svg" },
     { "handle": "filesystem" },
-    { "src": "/(.*)", "dest": "booking-app/dist/index.html" }
+    { "src": "/(.*)", "dest": "/booking-app/index.html" }
   ]
 }
