@@ -12,6 +12,11 @@
     }
   ],
   "routes": [
+    {
+      "src": "/login",
+      "status": 308,
+      "dest": "https://portfolio-project-two-lyart.vercel.app"
+    },
     { "src": "/api/(.*)", "dest": "/api/server.js" },
     { "src": "/assets/(.*)", "dest": "/booking-app/assets/$1" },
     { "src": "/favicon.svg", "dest": "/booking-app/favicon.svg" },
