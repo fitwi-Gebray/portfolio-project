@@ -1,5 +1,4 @@
-import { useRef, useState } from "react";
-import emailjs from "@emailjs/browser";
+import { useRef, useState, useEffect } from "react";
 import Swal from "sweetalert2";
 import {
   FiMail,
@@ -14,44 +13,39 @@ const Contact = () => {
   const formRef = useRef();
   const [isSending, setIsSending] = useState(false);
   const [message, setMessage] = useState("");
+  const [isFormValid, setIsFormValid] = useState(false);
   const MAX_CHARS = 500;
 
-  const sendEmail = (e) => {
-    e.preventDefault();
-    if (isSending) return;
+  // Check if all fields are filled
+  useEffect(() => {
+    const name = formRef.current?.user_name?.value.trim();
+    const email = formRef.current?.user_email?.value.trim();
+    const msg = message.trim();
+    setIsFormValid(Boolean(name && email && msg));
+  }, [message]);
 
-    // Validation
-    if (!message.trim()) {
-      return Swal.fire({
-        title: "Empty message!",
-        text: "Please type a message before sending.",
-        icon: "warning",
-        background: "#18181b",
-        color: "#fff",
-      });
-    }
+  const sendEmail = async (e) => {
+    e.preventDefault();
+    if (isSending || !isFormValid) return; // prevent sending if not valid
 
     setIsSending(true);
 
-    // Template params without user-controlled recipient
-    const templateParams = {
-      user_name: formRef.current.user_name.value,
-      user_email: formRef.current.user_email.value,
-      message: message,
+    const payload = {
+      user_name: formRef.current.user_name.value.trim(),
+      user_email: formRef.current.user_email.value.trim(),
+      message: message.trim(),
     };
 
-    emailjs
-      .send(
-        import.meta.env.VITE_EMAILJS_SERVICE_ID,
-        import.meta.env.VITE_EMAILJS_TEMPLATE_ID,
-        templateParams,
-        import.meta.env.VITE_EMAILJS_PUBLIC_KEY,
-      )
-      .then(() => {
-        setIsSending(false);
-        e.target.reset();
-        setMessage("");
+    try {
+      const res = await fetch("http://localhost:5001/send-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
 
+      const data = await res.json();
+
+      if (data.success) {
         Swal.fire({
           title: "Sent!",
           text: "Your message has been delivered.",
@@ -60,19 +54,29 @@ const Contact = () => {
           color: "#fff",
           confirmButtonColor: "#3b82f6",
         });
-      })
-      .catch((err) => {
-        console.error("EmailJS Error:", err);
-        setIsSending(false);
-
+        formRef.current.reset();
+        setMessage("");
+      } else {
         Swal.fire({
-          title: "Error!",
-          text: "Something went wrong while sending your message.",
+          title: "Error",
+          text: data.error || "Failed to send your message",
           icon: "error",
           background: "#18181b",
           color: "#fff",
         });
+      }
+    } catch (err) {
+      console.error(err);
+      Swal.fire({
+        title: "Error",
+        text: "Backend unavailable",
+        icon: "error",
+        background: "#18181b",
+        color: "#fff",
       });
+    }
+
+    setIsSending(false);
   };
 
   return (
@@ -152,19 +156,20 @@ const Contact = () => {
                   type="text"
                   name="user_name"
                   required
-                  placeholder="your-name"
+                  placeholder="Your Name"
+                  onChange={() => setMessage((prev) => prev)} // trigger validation
                   className="w-full px-5 py-4 bg-zinc-800 text-white rounded-2xl outline-none focus:ring-2 focus:ring-zinc-600"
                 />
                 <input
                   type="email"
                   name="user_email"
                   required
-                  placeholder="your.email@example.com"
+                  placeholder="Your Email"
+                  onChange={() => setMessage((prev) => prev)} // trigger validation
                   className="w-full px-5 py-4 bg-zinc-800 text-white rounded-2xl outline-none focus:ring-2 focus:ring-zinc-600"
                 />
               </div>
 
-              {/* Message */}
               <textarea
                 name="message"
                 value={message}
@@ -182,8 +187,8 @@ const Contact = () => {
 
               <button
                 type="submit"
-                disabled={isSending || !message.trim()}
-                className="w-full flex items-center justify-center gap-3 bg-white text-black font-bold py-5 rounded-2xl hover:bg-zinc-200 transition-all active:scale-[0.98] disabled:opacity-50 mt-4"
+                disabled={isSending || !isFormValid}
+                className="w-full flex items-center justify-center gap-3 bg-zinc-500 text-white font-bold py-5 rounded-2xl hover:bg-zinc-400 transition-all active:scale-[0.98] disabled:opacity-50 mt-4"
               >
                 {isSending ? (
                   <FiLoader className="animate-spin" />
