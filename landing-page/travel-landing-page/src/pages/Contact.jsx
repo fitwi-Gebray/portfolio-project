@@ -1,206 +1,188 @@
-import { useState, useActionState, useEffect } from "react";
+import { useRef, useState } from "react";
 import emailjs from "@emailjs/browser";
 import Swal from "sweetalert2";
 import {
   FiMail,
   FiGithub,
   FiLinkedin,
-  FiRotateCcw,
-  FiUser,
   FiSend,
-  FiEdit3,
+  FiMapPin,
+  FiLoader,
 } from "react-icons/fi";
 
 const Contact = () => {
-  const [msgLength, setMsgLength] = useState(0);
+  const formRef = useRef();
+  const [isSending, setIsSending] = useState(false);
+  const [message, setMessage] = useState("");
   const MAX_CHARS = 500;
 
-  async function handleEmailAction(prevState, formData) {
-    const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
-    const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
-    const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
+  const sendEmail = (e) => {
+    e.preventDefault();
+    if (isSending) return;
 
-    const templateParams = {
-      user_name: formData.get("user_name"),
-      user_email: formData.get("user_email"),
-      recipient_email: formData.get("recipient_email"),
-      subject: formData.get("subject") || "Contact Inquiry",
-      message: formData.get("message"),
-    };
+    setIsSending(true);
 
-    try {
-      await emailjs.send(serviceId, templateId, templateParams, publicKey);
-      return {
-        success: true,
-        text: "Message sent successfully!",
-        timestamp: Date.now(),
-      };
-    } catch (error) {
-      console.error("EmailJS Error:", error);
-      return {
-        success: false,
-        text: "Delivery failed. Please check the recipient address.",
-        timestamp: Date.now(),
-      };
-    }
-  }
+    emailjs
+      .sendForm(
+        import.meta.env.VITE_EMAILJS_SERVICE_ID,
+        import.meta.env.VITE_EMAILJS_TEMPLATE_ID,
+        formRef.current,
+        import.meta.env.VITE_EMAILJS_PUBLIC_KEY,
+      )
+      .then(() => {
+        setIsSending(false);
+        formRef.current.reset();
+        setMessage("");
 
-  const [state, formAction, isPending] = useActionState(handleEmailAction, {
-    success: null,
-    text: "",
-  });
+        Swal.fire({
+          title: "Message Sent!",
+          text: "Thank you! I'll get back to you as soon as possible.",
+          icon: "success",
+          confirmButtonColor: "#18181b",
+        });
+      })
+      .catch((err) => {
+        console.error("EmailJS Error:", err);
+        setIsSending(false);
 
-  useEffect(() => {
-    if (state.success === true) {
-      Swal.fire({
-        title: "Sent",
-        text: "Your message has been delivered.",
-        icon: "success",
-        background: "#111827",
-        color: "#e5e7eb",
-        confirmButtonColor: "#3b82f6",
-        timer: 3000,
+        Swal.fire({
+          title: "Error!",
+          text: "Something went wrong. Please try again later.",
+          icon: "error",
+        });
       });
-      setMsgLength(0);
-    } else if (state.success === false) {
-      Swal.fire({
-        title: "Error",
-        text: state.text,
-        icon: "error",
-        background: "#111827",
-        color: "#e5e7eb",
-        confirmButtonColor: "#dc2626",
-      });
-    }
-  }, [state.timestamp, state.success]);
+  };
 
   return (
-    <div className="w-full max-w-[1100px] mx-auto px-6 py-[4.5rem] font-sans">
-      {/* SECTION HEADER UPDATED */}
-      <div className="flex items-center gap-3 mb-8 border-b border-[#1f2937] pb-4">
-        <FiEdit3 className="text-[#3b82f6]" size={24} />
-        <h2 className="text-[1.5rem] font-bold text-[#e5e7eb]">Contact Me</h2>
-      </div>
+    <section className="relative min-h-screen bg-zinc-950 text-white py-32 px-6 overflow-hidden">
+      {/* Background blobs */}
+      <div className="absolute top-[-10%] left-[-10%] w-[400px] h-[400px] bg-sky-600/20 rounded-full blur-[120px] animate-pulse" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-indigo-600/20 rounded-full blur-[150px]" />
 
-      <div className="grid grid-cols-1 lg:grid-cols-[1.8fr_1fr] gap-[3rem]">
-        <form
-          action={formAction}
-          className="bg-[#111827] border border-[#1f2937] rounded-xl shadow-2xl flex flex-col overflow-hidden"
-        >
-          {/* HEADER FIELDS */}
-          <div className="flex flex-col border-b border-[#1f2937]">
-            <div className="flex items-center px-4 py-3 border-b border-[#1f2937]/50">
-              <span className="text-[#9ca3af] text-sm w-12">From:</span>
-              <input
-                className="flex-1 bg-transparent text-[#e5e7eb] text-sm outline-none px-2"
-                type="text"
-                name="user_name"
-                placeholder="your-name"
-                required
-              />
-              <input
-                className="flex-1 bg-transparent text-[#9ca3af] text-sm outline-none border-l border-[#1f2937] px-2"
-                type="email"
-                name="user_email"
-                placeholder="your.email@example.com"
-                required
-              />
-            </div>
+      <div className="relative max-w-5xl mx-auto">
+        <div className="bg-zinc-900 rounded-3xl shadow-2xl overflow-hidden grid grid-cols-1 lg:grid-cols-5 border border-zinc-800">
+          {/* Sidebar */}
+          <div className="lg:col-span-2 bg-zinc-900 p-10 text-white flex flex-col justify-between relative overflow-hidden">
+            <div className="absolute -top-20 -left-20 w-64 h-64 bg-zinc-800 rounded-full opacity-50"></div>
 
-            <div className="flex items-center px-4 py-3 border-b border-[#1f2937]/50">
-              <span className="text-[#9ca3af] text-sm w-20">Recipient:</span>
-              <input
-                className="flex-1 bg-transparent text-[#e5e7eb] text-sm outline-none px-2"
-                type="email"
-                name="recipient_email"
-                placeholder="recipient@example.com"
-                required
-              />
-            </div>
+            <div className="relative z-10">
+              <h3 className="text-3xl font-bold mb-2">Let's Talk</h3>
+              <p className="text-zinc-400 mb-10">
+                Have a project? I'd love to help you build it.
+              </p>
 
-            <div className="flex items-center px-4 py-3">
-              <span className="text-[#9ca3af] text-sm w-20">Subject:</span>
-              <input
-                className="flex-1 bg-transparent text-[#e5e7eb] text-sm outline-none px-2 font-medium"
-                type="text"
-                name="subject"
-                placeholder="Enter subject here..."
-              />
-            </div>
-          </div>
-
-          {/* MESSAGE AREA UPDATED */}
-          <div className="p-4 relative">
-            <textarea
-              className="w-full bg-transparent text-[#e5e7eb] text-sm outline-none min-h-[250px] resize-none leading-relaxed"
-              name="message"
-              placeholder="Type your message here..."
-              maxLength={MAX_CHARS}
-              onChange={(e) => setMsgLength(e.target.value.length)}
-              required
-            />
-            <div className="absolute bottom-2 right-4 text-[0.7rem] text-[#4b5563]">
-              {msgLength} / {MAX_CHARS}
-            </div>
-          </div>
-
-          {/* BOTTOM TOOLBAR UPDATED */}
-          <div className="bg-[#0f172a] px-4 py-3 flex justify-between items-center border-t border-[#1f2937]">
-            <div className="flex gap-3">
-              <button
-                type="submit"
-                disabled={isPending}
-                className="bg-[#3b82f6] hover:bg-[#2563eb] text-white px-8 py-2 rounded-md text-sm font-medium transition-all flex items-center gap-2 disabled:opacity-50 active:scale-95"
-              >
-                {isPending ? "Sending..." : "Send"} <FiSend size={14} />
-              </button>
-              <button
-                type="reset"
-                onClick={() => setMsgLength(0)}
-                className="text-[#9ca3af] hover:text-[#e5e7eb] p-2 transition-colors"
-              >
-                <FiRotateCcw size={18} />
-              </button>
-            </div>
-          </div>
-        </form>
-
-        {/* SIDEBAR INFO */}
-        <div className="space-y-6">
-          <div className="bg-[#111827] border border-[#1f2937] rounded-xl p-6 shadow-sm">
-            <h3 className="text-[#e5e7eb] text-sm font-bold uppercase tracking-widest mb-4 flex items-center gap-2">
-              <FiUser className="text-[#3b82f6]" /> Developer Info
-            </h3>
-            <div className="space-y-4">
-              <a
-                href="mailto:fitwigebray8@gmail.com"
-                className="flex items-center gap-3 text-[#9ca3af] hover:text-[#374151] text-sm transition-colors"
-              >
-                <FiMail /> fitwigebray8@gmail.com
-              </a>
-              <div className="pt-4 flex gap-4 border-t border-[#1f2937]">
+              <div className="space-y-8">
                 <a
-                  href="https://github.com/fitwi-Gebray"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-[#9ca3af] hover:text-white transition-colors"
+                  href="mailto:fitwigebray8@gmail.com"
+                  className="group flex items-center gap-5"
                 >
-                  <FiGithub size={20} />
+                  <div className="bg-zinc-800 p-4 rounded-2xl group-hover:bg-zinc-700 transition-colors">
+                    <FiMail size={22} className="text-zinc-100" />
+                  </div>
+
+                  <div>
+                    <p className="text-xs text-zinc-500 uppercase tracking-widest">
+                      Email me
+                    </p>
+                    <span className="text-sm font-medium">
+                      fitwigebray8@gmail.com
+                    </span>
+                  </div>
                 </a>
-                <a
-                  href="https://linkedin.com"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-[#9ca3af] hover:text-white transition-colors"
-                >
-                  <FiLinkedin size={20} />
-                </a>
+
+                <div className="flex items-center gap-5">
+                  <div className="bg-zinc-800 p-4 rounded-2xl">
+                    <FiMapPin size={22} className="text-zinc-100" />
+                  </div>
+
+                  <div>
+                    <p className="text-xs text-zinc-500 uppercase tracking-widest">
+                      Location
+                    </p>
+                    <span className="text-sm font-medium">
+                      Remote / Worldwide
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
+
+            <div className="relative z-10 pt-12 flex gap-4">
+              <a
+                href="https://github.com"
+                target="_blank"
+                rel="noreferrer"
+                className="p-3 bg-zinc-800 rounded-xl hover:bg-white hover:text-black transition-all"
+              >
+                <FiGithub size={20} />
+              </a>
+
+              <a
+                href="https://linkedin.com"
+                target="_blank"
+                rel="noreferrer"
+                className="p-3 bg-zinc-800 rounded-xl hover:bg-white hover:text-black transition-all"
+              >
+                <FiLinkedin size={20} />
+              </a>
+            </div>
+          </div>
+
+          {/* Form */}
+          <div className="lg:col-span-3 p-10 lg:p-14">
+            <form ref={formRef} onSubmit={sendEmail} className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <input
+                  type="text"
+                  name="user_name"
+                  required
+                  placeholder="Full Name"
+                  className="w-full px-5 py-4 bg-zinc-800 text-white rounded-2xl outline-none focus:ring-2 focus:ring-zinc-600"
+                />
+
+                <input
+                  type="email"
+                  name="user_email"
+                  required
+                  placeholder="Email Address"
+                  className="w-full px-5 py-4 bg-zinc-800 text-white rounded-2xl outline-none focus:ring-2 focus:ring-zinc-600"
+                />
+              </div>
+
+              <textarea
+                name="message"
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                maxLength={MAX_CHARS}
+                required
+                rows="4"
+                placeholder="Your message..."
+                className="w-full px-5 py-4 bg-zinc-800 text-white rounded-2xl outline-none resize-none focus:ring-2 focus:ring-zinc-600"
+              />
+
+              <div className="text-right text-xs text-zinc-400">
+                {message.length} / {MAX_CHARS}
+              </div>
+
+              <button
+                type="submit"
+                disabled={isSending}
+                className="w-full flex items-center justify-center gap-3 bg-zinc-900 text-white font-bold py-5 rounded-2xl hover:bg-zinc-800 transition-all active:scale-[0.98] disabled:opacity-50 mt-4"
+              >
+                {isSending ? (
+                  <FiLoader className="animate-spin" />
+                ) : (
+                  <FiSend className="text-xl" />
+                )}
+                <span className="tracking-wide">
+                  {isSending ? "Sending..." : "Send Message"}
+                </span>
+              </button>
+            </form>
           </div>
         </div>
       </div>
-    </div>
+    </section>
   );
 };
 
