@@ -55,7 +55,7 @@ const About = () => {
               Analytics charts, tables, and dark mode built with React and
               Recharts.
               <a
-                href="https://fitwi-dashboard.vercel.app"
+                href="https://dashboard-theta-beryl-44.vercel.app/"
                 target="_blank"
                 rel="noreferrer"
                 className="text-[#3b82f6] hover:text-[#60a5fa] ml-1 transition-colors underline underline-offset-4 decoration-[#3b82f6]/30 font-medium"
@@ -70,7 +70,7 @@ const About = () => {
               Full-screen UI, destination search, and responsive design built
               with React.
               <a
-                href="https://landing-page-two-swart-36.vercel.app/"
+                href="https://travel-planner-app-five-pearl.vercel.app/"
                 target="_blank"
                 rel="noreferrer"
                 className="text-[#3b82f6] hover:text-[#60a5fa] ml-1 transition-colors underline underline-offset-4 decoration-[#3b82f6]/30 font-medium"
