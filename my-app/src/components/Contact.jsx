@@ -1,4 +1,4 @@
-import { useState, useActionState, useEffect } from "react";
+import { useState, useActionState, useEffect, useRef } from "react";
 import emailjs from "@emailjs/browser";
 import Swal from "sweetalert2";
 import {
@@ -11,6 +11,7 @@ import {
 
 const Contact = () => {
   const [msgLength, setMsgLength] = useState(0);
+  const formRef = useRef(null); // Ref to reset the form DOM elements
   const MAX_CHARS = 500;
 
   async function handleEmailAction(prevState, formData) {
@@ -18,6 +19,8 @@ const Contact = () => {
     const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
     const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
 
+    // The recipient is defined in your EmailJS Template settings,
+    // NOT passed from the form for security.
     const templateParams = {
       user_name: formData.get("user_name"),
       user_email: formData.get("user_email"),
@@ -56,13 +59,23 @@ const Contact = () => {
         color: "#e5e7eb",
         confirmButtonColor: "#3b82f6",
       });
+
+      // Reset form and character counter on success
+      formRef.current?.reset();
       setMsgLength(0);
+    } else if (state.success === false) {
+      Swal.fire({
+        title: "Error",
+        text: state.text,
+        icon: "error",
+        background: "#111827",
+        color: "#e5e7eb",
+      });
     }
-  }, [state.timestamp, state.success]);
+  }, [state.timestamp, state.success, state.text]);
 
   return (
     <div className="w-full max-w-[1100px] mx-auto px-6 py-[4.5rem]">
-      {/* SECTION HEADER */}
       <div className="flex justify-between items-end mb-8">
         <div>
           <div className="inline-block px-[0.7rem] py-[0.25rem] text-[0.75rem] rounded-full border border-[#1f2937] bg-[rgba(15,23,42,0.9)] text-[#9ca3af] mb-4">
@@ -73,12 +86,11 @@ const Contact = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-[1.8fr_1fr] gap-[3rem]">
-        {/* FORM CONTAINER */}
         <form
+          ref={formRef}
           action={formAction}
           className="bg-[#111827] border border-[#1f2937] rounded-[20px] p-[1.5rem] md:p-[2rem] shadow-2xl flex flex-col gap-6"
         >
-          {/* USER INFO */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="flex flex-col gap-2">
               <label className="text-[0.9rem] font-medium text-[#e5e7eb]">
@@ -88,7 +100,7 @@ const Contact = () => {
                 className="w-full bg-[#030712] border border-[#1f2937] rounded-lg px-4 py-[0.6rem] text-[#e5e7eb] outline-none focus:border-[#3b82f6] transition-all placeholder:text-[#374151]"
                 type="text"
                 name="user_name"
-                placeholder="your-name"
+                placeholder="John Doe"
                 required
               />
             </div>
@@ -100,13 +112,12 @@ const Contact = () => {
                 className="w-full bg-[#030712] border border-[#1f2937] rounded-lg px-4 py-[0.6rem] text-[#e5e7eb] outline-none focus:border-[#3b82f6] transition-all placeholder:text-[#374151]"
                 type="email"
                 name="user_email"
-                placeholder="your.email@example.com"
+                placeholder="john@example.com"
                 required
               />
             </div>
           </div>
 
-          {/* MESSAGE */}
           <div className="flex flex-col gap-2">
             <div className="flex justify-between items-center">
               <label className="text-[0.9rem] font-medium text-[#e5e7eb]">
@@ -123,7 +134,7 @@ const Contact = () => {
             <textarea
               className="w-full bg-[#030712] border border-[#1f2937] rounded-lg px-4 py-[0.6rem] text-[#e5e7eb] outline-none focus:border-[#3b82f6] transition-all placeholder:text-[#374151] min-h-[160px] resize-none"
               name="message"
-              placeholder="Please enter your message here..."
+              placeholder="How can I help you?"
               maxLength={MAX_CHARS}
               onChange={(e) => setMsgLength(e.target.value.length)}
               required
@@ -150,7 +161,6 @@ const Contact = () => {
           </div>
         </form>
 
-        {/* SIDE INFO CARD */}
         <div className="flex flex-col gap-6">
           <div className="bg-[#111827] border border-[#1f2937] rounded-[24px] p-[1.5rem] shadow-xl">
             <h3 className="text-[#e5e7eb] font-semibold mb-4 flex items-center gap-2">
