@@ -17,14 +17,14 @@
       "status": 308,
       "dest": "https://portfolio-project-two-lyart.vercel.app"
     },
-    { "src": "/api/(.*)", "dest": "/api/server.js" },
-    { "src": "/assets/(.*)", "dest": "/booking-app/assets/$1" },
-    { "src": "/favicon.svg", "dest": "/booking-app/favicon.svg" },
-    { "src": "/icons.svg", "dest": "/booking-app/icons.svg" },
+    { "src": "/api/(.*)", "dest": "api/server.js" },
+    { "src": "/assets/(.*)", "dest": "booking-app/assets/$1" },
+    { "src": "/favicon.svg", "dest": "booking-app/favicon.svg" },
+    { "src": "/icons.svg", "dest": "booking-app/icons.svg" },
     { "handle": "filesystem" },
     {
       "src": "/(?!(api|assets|favicon.svg|icons.svg)).*",
-      "dest": "/booking-app/index.html"
+      "dest": "booking-app/index.html"
     }
   ]
 }
